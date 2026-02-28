@@ -2,10 +2,10 @@
 
 ## TODO
 
-- [ ] Criação de lobby
+- [x] Criação de lobby
 - [ ] Fechamento de lobby
 - [ ] Edição de lobby
-- [ ] Entrada no lobby
+- [x] Entrada no lobby
 - [ ] Chat de lobby
 
 - [ ] Registro de perfil

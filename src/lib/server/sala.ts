@@ -4,6 +4,7 @@ const LETRAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 type Sala = {
 	jogadores: Record<string, string>;
+	chat: string[];
 };
 class Salas {
 	constructor(private salas: Record<string, Sala> = {}) {}
@@ -31,7 +32,10 @@ class Salas {
 		if (!sala) return false;
 
 		delete sala.jogadores[j];
-		// j.sala = undefined;
+		if (Object.keys(sala.jogadores).length == 0) {
+			this.apagar_sala(id_sala);
+		}
+
 		console.log(j, 'sair do sala', id_sala);
 		return true;
 	}
@@ -39,7 +43,7 @@ class Salas {
 	criar_sala(): string {
 		let id: string = this.criar_id();
 
-		const sala: Sala = { jogadores: {} };
+		const sala: Sala = { jogadores: {}, chat: [] };
 
 		this.salas[id] = sala;
 
@@ -52,7 +56,6 @@ class Salas {
 
 		if (!sala) return;
 
-		// sala.jogadores.forEach((j) => (j.sala = undefined));
 		delete this.salas[id];
 		console.log('sala deletado:', id);
 	}
@@ -70,6 +73,22 @@ class Salas {
 		}
 
 		return id;
+	}
+
+	mandar_msg(id_sala: string, msg: string) {
+		const sala = this.get_sala(id_sala);
+
+		if (!sala) return;
+
+		sala.chat.push(msg);
+	}
+
+	get_chat(id_sala: string): string[] | undefined {
+		const sala = this.get_sala(id_sala);
+
+		if (!sala) return;
+
+		return sala.chat;
 	}
 }
 

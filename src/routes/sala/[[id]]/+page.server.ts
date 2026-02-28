@@ -37,6 +37,16 @@ export const actions = {
 			salas.remover_jogador(params.id, nome);
 		}
 		throw redirect(303, `/`);
+	},
+	msg: async ({ request, params }) => {
+		const data = await request.formData();
+		const nome = data.get('nome')?.toString();
+		const msg = data.get('msg')?.toString();
+		console.log(nome, ':', msg);
+
+		if (nome && params.id && msg) {
+			salas.mandar_msg(params.id, `${nome}: ${msg}`);
+		}
 	}
 } satisfies Actions;
 
@@ -47,7 +57,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		return {
 			player: url.searchParams.get('p') || '',
 			players: JSON.stringify(salas.get_sala(id_sala)?.jogadores),
-			id_sala
+			id_sala,
+			chat: salas.get_chat(id_sala)
 		};
 	}
 };
