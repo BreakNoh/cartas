@@ -6,7 +6,7 @@
 - [ ] Fechamento de lobby
 - [ ] Edição de lobby
 - [x] Entrada no lobby
-- [ ] Chat de lobby
+- [x] Chat de lobby
 
 - [ ] Registro de perfil
 - [ ] Logar
