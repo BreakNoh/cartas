@@ -1,20 +1,33 @@
-import type { lobbies } from './lobby';
+import { Sala } from "./sala";
 
-export type Player = {
-	nome: string;
-};
+export class Player {
+	public sala? : Sala
+	constructor(readonly id: number, readonly nome: string){}
+
+}
 class Players {
-	constructor(private players: Record<string, Player> = {}) {}
+	readonly players: Map<number, Player> = new Map() 
 
-	player_existe(nome: string): boolean {
-		return !!this.players[nome];
+	criarId(): number{
+		let id = 0;
+		while (true) {
+			id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+			
+			if (!this.players.has(id)) {
+				return id
+			}
+		}
 	}
 
-	registrar_player(nome: string): boolean {
-		if (this.players[nome]) return false;
+	registrarPlayer(nome: string): Player{
+		const id = this.criarId();
+		const player = new Player(id, nome);
+		this.players.set(id, player);
+		return player;
 
-		this.players[nome] = { nome };
-		return true;
+	}
+	apagarPlayer(id: number){
+		this.players.delete(id)
 	}
 }
 
