@@ -4,23 +4,26 @@ const LETRAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 export class Sala {
 	readonly jogadores: Record<string, Player> = {};
-	readonly chat: string[] = []
-	constructor (readonly id: string, readonly senha?: string){};
+	readonly chat: string[] = [];
+	constructor(
+		readonly id: string,
+		readonly senha?: string
+	) {}
 
 	adicionarJogador(jogador: Player) {
-		this.jogadores[jogador.nome] = jogador;
+		this.jogadores[jogador.id] = jogador;
 		jogador.sala = this;
 	}
-	removerJogador(id: number){
+	removerJogador(id: string) {
 		const player = this.jogadores[id];
 		if (!player) return;
-		
+
 		player.sala = this;
-		delete this.jogadores[id]
+		delete this.jogadores[id];
 	}
 
-	mandarMsg(msg:string) {
-		this.chat.push(msg)
+	mandarMsg(msg: string) {
+		this.chat.push(msg);
 	}
 }
 
@@ -31,6 +34,9 @@ class Salas {
 		return this.salas.has(id);
 	}
 
+	pegarSala(id: string): Sala | undefined {
+		return this.salas.get(id);
+	}
 
 	criarSala(senha?: string): Sala {
 		let id: string = this.criarId();
@@ -39,15 +45,13 @@ class Salas {
 
 		this.salas.set(id, sala);
 
-		console.log('sala criado:', id);
 		return sala;
 	}
 
 	apagarSala(id: string) {
 		this.salas.delete(id);
-		console.log('sala deletado:', id);
 	}
-	
+
 	criarId(): string {
 		let id = '';
 		while (true) {
@@ -55,7 +59,7 @@ class Salas {
 			for (let i = 0; i < 5; i++) {
 				id += LETRAS.charAt(Math.floor(Math.random() * LETRAS.length));
 			}
-			if (!this.salas.has(id)) break; 
+			if (!this.salas.has(id)) break;
 		}
 		return id;
 	}

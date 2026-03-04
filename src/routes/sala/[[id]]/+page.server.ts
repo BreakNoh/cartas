@@ -1,64 +1,97 @@
 import type { PageServerLoad, Actions } from './$types';
 import { salas } from '$lib/server/sala';
 import { redirect } from '@sveltejs/kit';
+import { players } from '$lib/server/player';
 
 export const actions = {
 	criar: async ({ request }) => {
 		const data = await request.formData();
+
 		const nome = data.get('nome')?.toString();
-		const id = salas.criar_sala();
+		const id = data.get('id')?.toString();
+		const sala = salas.criarSala();
+
+		let jogador;
 		if (nome) {
-			salas.adicionar_jogador(id, nome);
+			jogador = players.registrarPlayer(nome);
+		} else if (id) {
+			jogador = players.players.get(id);
+			if (!jogador) return;
+		} else {
+			return;
 		}
-		console.log(data);
-		throw redirect(303, `/sala/${id}?p=${nome}`);
+
+		sala.adicionarJogador(jogador);
+		throw redirect(303, `/sala/${sala.id}?p=${id}`);
 	},
 	entrar: async ({ request }) => {
 		const data = await request.formData();
+
 		const nome = data.get('nome')?.toString();
-		console.log(data);
-		const id_lobby = data.get('lobby')?.toString();
+		const id = data.get('id')?.toString();
+		const idSala = data.get('sala')?.toString();
 
-		if (!id_lobby) return;
+		if (!idSala) return;
 
-		const id_norm = id_lobby.trim().toUpperCase();
-
-		console.log(id_norm);
-		if (salas.sala_existe(id_norm) && nome) {
-			salas.adicionar_jogador(id_norm, nome);
-			throw redirect(303, `/sala/${id_norm}?p=${nome}`);
+		let jogador;
+		if (nome) {
+			jogador = players.registrarPlayer(nome);
+		} else if (id) {
+			jogador = players.players.get(id);
+			if (!jogador) return;
+		} else {
+			return;
 		}
+
+		const idNorm = idSala.trim().toUpperCase();
+		const sala = salas.pegarSala(idNorm);
+
+		sala?.adicionarJogador(jogador);
+
+		if (!sala) return;
+
+		throw redirect(303, `/sala/${idNorm}?p=${idNorm}`);
 	},
 	sair: async ({ request, params }) => {
-		const nome = (await request.formData()).get('nome')?.toString();
-		console.log(nome, 'quer sair');
+		const data = await request.formData();
 
-		if (nome && params.id) {
-			salas.remover_jogador(params.id, nome);
-		}
+		const idPlayer = data.get('id')?.toString();
+		const idSala = params.id;
+
+		if (!idSala || !idPlayer) return;
+
+		const sala = salas.pegarSala(idSala);
+		sala?.removerJogador(idPlayer);
+
 		throw redirect(303, `/`);
 	},
 	msg: async ({ request, params }) => {
 		const data = await request.formData();
-		const nome = data.get('nome')?.toString();
-		const msg = data.get('msg')?.toString();
-		console.log(nome, ':', msg);
 
-		if (nome && params.id && msg) {
-			salas.mandar_msg(params.id, `${nome}: ${msg}`);
-		}
+		const idPlayer = data.get('id')?.toString();
+		const idSala = params.id;
+		const msg = data.get('msg')?.toString();
+
+		if (!idSala || !idPlayer || !msg) return;
+
+		const jogador = players.players.get(idPlayer);
+		const sala = salas.pegarSala(idSala);
+
+		if (!jogador || !sala) return;
+		sala.mandarMsg(`${jogador.nome}: ${msg}`);
 	}
 } satisfies Actions;
-
 export const load: PageServerLoad = async ({ params, url }) => {
-	const id_sala = params.id;
+	const idSala = params.id;
 
-	if (id_sala) {
-		return {
-			player: url.searchParams.get('p') || '',
-			players: JSON.stringify(salas.get_sala(id_sala)?.jogadores),
-			id_sala,
-			chat: salas.get_chat(id_sala)
-		};
-	}
+	if (!idSala) return;
+	const sala = salas.pegarSala(idSala);
+	if (!sala) return;
+
+	return {
+		player: url.searchParams.get('p') || '',
+		players: JSON.stringify(sala.jogadores),
+		idSala,
+		chat: sala.chat
+	};
 };

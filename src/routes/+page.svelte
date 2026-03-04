@@ -12,6 +12,6 @@
 	<label for="">nome</label>
 	<input type="text" name="nome" />
 	<label for="">lobby</label>
-	<input type="text" name="lobby" />
+	<input type="text" name="sala" />
 	<button>entrar em lobby</button>
 </form>

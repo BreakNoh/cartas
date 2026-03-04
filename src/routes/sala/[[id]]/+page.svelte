@@ -9,11 +9,11 @@
 
 	onMount(() => {
 		nome_player.set(data.player || '');
-		id_sala.set(data.id_sala || '');
+		id_sala.set(data.idSala || '');
 	});
 </script>
 
-lobby {data.id_sala}
+lobby {data.idSala}
 
 {#if data.players}
 	{data.players}
